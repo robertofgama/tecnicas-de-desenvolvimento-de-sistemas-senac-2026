@@ -1,0 +1,1126 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aula 1 — A viagem de um pedido</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/6.0.2/reset.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/6.0.2/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/6.0.2/theme/black.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/6.0.2/plugin/highlight/monokai.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&family=Nunito:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
+
+  <style>
+    :root {
+      /* Uma cor por camada — a mesma em todo o material */
+      --cor-front: #5aa9ff;
+      --cor-rede: #ffb547;
+      --cor-back: #3ee6a0;
+      --cor-banco: #c39bff;
+      --destaque: #ff6fb5;
+
+      --fundo: #15121f;
+      --tinta: #f3f0ff;
+      --suave: #a39fb8;
+      --linha: #2f2a45;
+      --cartao: #221d33;
+      --sobre-cor: #15121f; /* texto sobre fundos coloridos */
+
+      --r-background-color: var(--fundo);
+      --r-main-font: 'Nunito', system-ui, sans-serif;
+      --r-heading-font: 'Bricolage Grotesque', system-ui, sans-serif;
+      --r-code-font: 'JetBrains Mono', monospace;
+      --r-main-font-size: 34px;
+      --r-main-color: var(--tinta);
+      --r-heading-color: var(--tinta);
+      --r-heading-text-transform: none;
+      --r-heading-font-weight: 800;
+      --r-heading-letter-spacing: -0.02em;
+      --r-heading-text-shadow: none;
+      --r-link-color: var(--destaque);
+      --r-selection-background-color: var(--destaque);
+    }
+
+    /* Fundo: bolhas de cor + pontilhado de caderno */
+    .reveal-viewport {
+      background-color: var(--fundo);
+      background-image:
+        radial-gradient(circle at 10% 15%, rgba(90, 169, 255, .16), transparent 32%),
+        radial-gradient(circle at 90% 88%, rgba(255, 111, 181, .14), transparent 30%),
+        radial-gradient(rgba(255, 255, 255, .06) 1px, transparent 1px);
+      background-size: auto, auto, 28px 28px;
+    }
+
+    .reveal .slides { text-align: left; }
+    .reveal h1 { font-size: 2.3em; }
+    .reveal h2 { font-size: 1.5em; margin-bottom: 0.6em; }
+    .reveal h2::after {
+      content: '';
+      display: block;
+      width: 72px; height: 6px;
+      margin-top: 10px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--destaque), var(--cor-rede));
+    }
+    .reveal h3 { font-size: 1.05em; }
+    .reveal p, .reveal li { line-height: 1.35; }
+    .reveal ul, .reveal ol { margin-left: 1.1em; }
+    .reveal li + li { margin-top: 0.25em; }
+    .reveal li::marker { color: var(--destaque); }
+    .reveal small, .reveal .suave { color: var(--suave); }
+    .reveal strong { font-weight: 800; }
+    .reveal .centro { text-align: center; }
+    .reveal .centro h2::after { margin-inline: auto; }
+    .reveal .centro ul { display: inline-block; text-align: left; }
+    .reveal blockquote {
+      background: var(--cartao);
+      border-left: 8px solid var(--destaque);
+      border-radius: 0 14px 14px 0;
+      box-shadow: none;
+      font-style: normal;
+      padding: 0.6em 0.9em;
+    }
+
+    .reveal pre {
+      width: 100%;
+      font-size: 0.56em;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, .35);
+      border: 1px solid var(--linha);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .reveal code { font-variant-ligatures: none; } /* mostra => e <= como digitados */
+    .reveal pre code { max-height: 560px; padding: 18px 22px; line-height: 1.45; background: #0d0b16; }
+    .reveal code:not(pre code) {
+      font-family: var(--r-code-font);
+      background: var(--cartao);
+      color: var(--cor-rede);
+      padding: 0 0.25em;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    /* Cor por camada */
+    .camada-front { --cor: var(--cor-front); }
+    .camada-rede  { --cor: var(--cor-rede); }
+    .camada-back  { --cor: var(--cor-back); }
+    .camada-banco { --cor: var(--cor-banco); }
+    .reveal .etiqueta {
+      display: inline-block;
+      background: var(--cor, var(--destaque));
+      color: var(--sobre-cor);
+      font-size: 0.5em;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.25em 0.8em;
+      border-radius: 8px;
+      margin-bottom: 0.6em;
+      transform: rotate(-2deg);
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, .35);
+    }
+
+    /* Layouts */
+    .colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+    .colunas.texto-codigo { grid-template-columns: 0.85fr 1.15fr; }
+    .cards { display: grid; grid-template-columns: repeat(var(--n, 2), 1fr); gap: 20px; }
+    .card {
+      background: var(--cartao);
+      border: 1px solid var(--linha);
+      border-top: 6px solid var(--cor, var(--destaque));
+      border-radius: 18px;
+      padding: 20px 24px;
+      font-size: 0.7em;
+    }
+    .card h3 { margin: 0 0 0.3em; }
+    .card p { margin: 0; }
+    .card .etiqueta { font-size: 0.7em; }
+    .card .icone { font-size: 1.8em; line-height: 1; margin-bottom: 0.2em; }
+
+    /* Diagrama da viagem (preenchido por desenharViagem) */
+    .viagem {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr auto) 1fr;
+      gap: 10px 8px;
+      align-items: stretch;
+      font-size: 0.6em;
+      margin: 0.4em 0 0.8em;
+    }
+    .viagem .parada {
+      background: var(--cartao);
+      border: 3px solid var(--cor);
+      border-radius: 14px;
+      padding: 12px 8px;
+      text-align: center;
+      transition: opacity .3s;
+    }
+    .viagem .parada .num {
+      display: inline-grid;
+      place-items: center;
+      width: 1.6em; height: 1.6em;
+      border-radius: 50%;
+      background: var(--cor);
+      color: var(--sobre-cor);
+      font-weight: 800;
+      font-size: 0.8em;
+    }
+    .viagem .parada strong { display: block; margin-top: 4px; font-size: 1.05em; }
+    .viagem .parada small { display: block; color: var(--suave); font-size: 0.85em; }
+    .viagem .parada em { display: block; margin-top: 4px; font-style: normal; font-weight: 800; color: var(--cor); }
+    .viagem .seta { align-self: center; color: var(--suave); font-size: 1.4em; font-weight: 800; }
+    .viagem.com-atual .parada:not(.atual) { opacity: 0.3; }
+    .viagem .parada.atual { background: var(--cor); color: var(--sobre-cor); box-shadow: 0 0 28px color-mix(in srgb, var(--cor) 45%, transparent); }
+    .viagem .parada.atual small, .viagem .parada.atual em { color: var(--sobre-cor); }
+    .viagem .parada.atual .num { background: var(--sobre-cor); color: var(--cor); }
+    .viagem .grupo {
+      grid-row: 2;
+      text-align: center;
+      font-size: 0.85em;
+      color: var(--suave);
+      border-top: 3px solid var(--cor);
+      padding-top: 4px;
+    }
+    .viagem.mini { font-size: 0.42em; margin: 0 0 0.6em; }
+    .viagem.mini .parada { padding: 6px 4px; border-width: 2px; }
+    .viagem.mini .parada.atual { box-shadow: none; }
+    .viagem.mini .parada em, .viagem.mini .grupo { display: none; }
+
+    /* Mockup da tela do Sistema de Pedidos (claro de propósito: parece um print do sistema) */
+    .mock {
+      --mock-azul: #2563eb;
+      --mock-linha: #e5e7eb;
+      border-radius: 14px;
+      overflow: hidden;
+      font-size: 0.5em;
+      background: #fff;
+      color: #1f2937;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, .45);
+      transform: rotate(-1deg);
+    }
+    .mock .barra { background: var(--mock-azul); color: #fff; padding: 10px 16px; font-weight: 800; }
+    .mock .corpo { padding: 14px 16px; display: grid; gap: 10px; }
+    .mock .campos { display: grid; grid-template-columns: 1.3fr 1.6fr 0.6fr auto; gap: 8px; align-items: end; }
+    .mock label { display: grid; gap: 2px; color: #6b7280; }
+    .mock .input { border: 1px solid #cbd5e1; border-radius: 6px; padding: 5px 8px; color: #1f2937; }
+    .mock .botao { background: var(--mock-azul); color: #fff; border-radius: 6px; padding: 6px 12px; font-weight: 800; }
+    .mock table { width: 100%; border-collapse: collapse; margin: 0; font-size: 1em; }
+    .mock th, .mock td { border-bottom: 1px solid var(--mock-linha); padding: 5px 6px; text-align: left; color: #1f2937; }
+
+    /* Componentes React desenhados como caixas */
+    .componente {
+      border: 2px dashed var(--cor-front);
+      border-radius: 12px;
+      padding: 22px 12px 10px;
+      position: relative;
+      margin-top: 10px;
+      font-size: 0.55em;
+      background: rgba(90, 169, 255, .05);
+    }
+    .componente > .nome {
+      position: absolute; top: -0.8em; left: 10px;
+      background: var(--cor-front); color: var(--sobre-cor);
+      padding: 0 8px; border-radius: 6px;
+      font-family: var(--r-code-font); font-weight: 600;
+    }
+    .componente .componente { font-size: 1em; }
+    .componente .lado-a-lado { display: grid; grid-template-columns: 1fr 1.4fr; gap: 14px; }
+
+    /* Demonstração de Flexbox / Grid */
+    .tela-demo { border: 3px solid var(--suave); border-radius: 16px; padding: 10px; background: var(--cartao); }
+    .tela-demo .bloco { background: rgba(90, 169, 255, .18); border: 1px solid rgba(90, 169, 255, .4); border-radius: 8px; padding: 8px; font-size: 0.45em; text-align: center; color: var(--cor-front); }
+    .tela-demo.desktop { display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: auto 1fr; gap: 8px; height: 230px; }
+    .tela-demo.desktop .topo { grid-column: 1 / -1; }
+    .tela-demo.celular { width: 150px; height: 270px; display: flex; flex-direction: column; gap: 8px; margin: 0 auto; border-radius: 24px; }
+    .tela-demo.celular .principal { flex: 1; }
+
+    /* Requisição e resposta */
+    .troca { display: grid; grid-template-columns: 1fr 2.2fr 1fr; gap: 20px; align-items: center; font-size: 0.65em; }
+    .troca .ponta { background: var(--cartao); border-radius: 18px; padding: 26px 14px; text-align: center; font-weight: 800; border-top: 6px solid var(--cor); }
+    .troca .mensagens { display: grid; gap: 26px; }
+    .troca .msg { border-bottom: 4px dashed var(--cor-rede); padding-bottom: 4px; position: relative; }
+    .troca .msg::after { position: absolute; bottom: -0.72em; font-size: 1.2em; color: var(--cor-rede); }
+    .troca .msg.ida::after { content: '▶'; right: -6px; }
+    .troca .msg.volta { text-align: right; }
+    .troca .msg.volta::after { content: '◀'; left: -6px; }
+
+    /* Tabelas (banco, REST) */
+    .reveal table.dados { font-size: 0.6em; border-collapse: separate; border-spacing: 0; margin: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--linha); }
+    .reveal table.dados caption { font-family: var(--r-code-font); font-weight: 600; color: var(--cor); text-align: left; padding-bottom: 4px; }
+    .reveal table.dados th { background: var(--cor); color: var(--sobre-cor); border: 0; }
+    .reveal table.dados th, .reveal table.dados td { padding: 6px 12px; border-bottom: 1px solid var(--linha); }
+    .reveal table.dados tr:nth-child(even) td { background: var(--cartao); }
+
+    /* Fila de middlewares e diagrama ER */
+    .fluxo { display: flex; align-items: center; gap: 10px; font-size: 0.5em; flex-wrap: wrap; }
+    .fluxo .passo { background: var(--cartao); border-left: 6px solid var(--cor); border-radius: 8px; padding: 8px 12px; font-family: var(--r-code-font); }
+    .fluxo .seta { color: var(--suave); font-weight: 800; }
+    .er { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.55em; }
+    .er .entidade { border: 3px solid var(--cor-banco); border-radius: 12px; overflow: hidden; min-width: 170px; background: var(--cartao); }
+    .er .entidade .titulo { background: var(--cor-banco); color: var(--sobre-cor); padding: 6px 10px; font-family: var(--r-code-font); font-weight: 600; }
+    .er .entidade ul { list-style: none; margin: 0; padding: 6px 10px; font-family: var(--r-code-font); font-size: 0.85em; }
+    .er .entidade li + li { margin-top: 2px; }
+    .er .rel { text-align: center; color: var(--cor-banco); font-weight: 800; min-width: 70px; }
+    .er .rel span { display: block; border-top: 3px solid var(--cor-banco); margin-top: 4px; }
+
+    /* Calendário */
+    .datas { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; font-size: 0.5em; }
+    .datas .dia { background: var(--cartao); border: 1px solid var(--linha); border-radius: 12px; padding: 8px 10px; color: var(--suave); }
+    .datas .dia b { display: block; font-size: 1.3em; color: var(--tinta); }
+    .datas .dia.hoje { border: 2px solid var(--destaque); transform: rotate(-2deg); }
+    .datas .dia.hoje::after { content: 'hoje!'; float: right; color: var(--destaque); font-weight: 800; }
+
+    /* Dinâmica */
+    .situacao { font-size: 1.15em; font-weight: 800; border-left: 8px solid var(--destaque); padding-left: 0.6em; margin: 0.3em 0 1em; }
+    .opcoes { display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.55em; }
+    .opcoes span { border: 2px solid var(--linha); background: var(--cartao); border-radius: 999px; padding: 4px 14px; }
+    .resposta { margin-top: 1em; background: var(--cor); color: var(--sobre-cor); border-radius: 14px; padding: 14px 20px; font-size: 0.7em; }
+    .resposta strong { font-size: 1.15em; }
+    .reveal .resposta code { background: rgba(0, 0, 0, .15); color: inherit; }
+
+    .capa h1 { margin-bottom: 0.2em; }
+    .capa h1 .marca { color: var(--destaque); }
+    .capa .sub { font-size: 1.1em; color: var(--suave); }
+    .capa .viagem { margin-top: 1.2em; }
+
+    /* Navegação: anterior, contador e próximo no canto superior direito */
+    .navegacao {
+      position: fixed;
+      top: 14px; right: 14px;
+      z-index: 40;
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px;
+      background: rgba(34, 29, 51, .85);
+      border: 1px solid var(--linha);
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--tinta);
+    }
+    .navegacao button {
+      width: 42px; height: 42px;
+      border: 0; border-radius: 50%;
+      background: var(--cartao);
+      color: var(--tinta);
+      font-size: 24px; line-height: 1;
+      cursor: pointer;
+      transition: background .15s, transform .15s;
+    }
+    .navegacao button:hover:not(:disabled) { background: var(--destaque); color: var(--sobre-cor); transform: scale(1.08); }
+    .navegacao button:disabled { opacity: .3; cursor: default; }
+    .navegacao .contador { min-width: 76px; text-align: center; font-size: 17px; color: var(--suave); }
+    .navegacao .contador b { color: var(--tinta); }
+    @media print { .navegacao { display: none; } }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ===================== ABERTURA ===================== -->
+
+<section class="capa">
+  <p class="suave">Senac RS · Técnicas de Desenvolvimento de Sistemas · Aula 1 · 05/10/2026</p>
+  <h1>A viagem de um <span class="marca">pedido</span> 🚚</h1>
+  <p class="sub">Um panorama de tudo o que vamos construir nas próximas 50 horas</p>
+  <div class="viagem" data-atual="todas"></div>
+  <aside class="notes">Boas-vindas. Hoje não vamos programar: vamos olhar o mapa inteiro antes de começar a viagem.</aside>
+</section>
+
+<section>
+  <h2>Quem está aqui?</h2>
+  <div class="cards" style="--n: 3">
+    <div class="card"><div class="icone">👋</div><h3>Nome</h3><p>Como você gosta de ser chamado(a)</p></div>
+    <div class="card"><div class="icone">🏭</div><h3>Área</h3><p>Onde você trabalha na Vence Tudo e o que faz</p></div>
+    <div class="card"><div class="icone">🎯</div><h3>Expectativa</h3><p>Uma coisa que você quer sair daqui sabendo fazer</p></div>
+  </div>
+  <aside class="notes">Rodada rápida, no máximo 1 minuto por pessoa. Anotar as expectativas para retomar no fechamento.</aside>
+</section>
+
+<section>
+  <h2>De 0 a 3: quanto você já programou?</h2>
+  <div class="cards" style="--n: 4">
+    <div class="card"><h3>0</h3><p>Nunca programei</p></div>
+    <div class="card"><h3>1</h3><p>Já mexi em fórmulas, macros ou HTML</p></div>
+    <div class="card"><h3>2</h3><p>Já fiz pequenos programas ou scripts</p></div>
+    <div class="card"><h3>3</h3><p>Programo no dia a dia do trabalho</p></div>
+  </div>
+  <p class="suave centro" style="font-size: .6em; margin-top: 1.2em">Levante a mão com os dedos. Não existe resposta errada: isso ajusta o ritmo do curso.</p>
+  <aside class="notes">Contar as mãos e anotar a distribuição. Ela orienta o nivelamento e a formação de duplas nas próximas aulas.</aside>
+</section>
+
+<section>
+  <h2>Combinados</h2>
+  <div class="colunas">
+    <ul>
+      <li><strong>50 h</strong> em <strong>17 encontros</strong> de 3 h (o último tem 2 h)</li>
+      <li>Frequência mínima: <strong>75%</strong></li>
+      <li>Avaliação <strong>contínua</strong>: projetos, resolução de problemas, participação</li>
+      <li>Recuperação também contínua, ao longo do curso</li>
+    </ul>
+    <div class="cards" style="--n: 2">
+      <div class="card camada-back"><h3>A · B · C</h3><p>Aprovado: competências evidenciadas</p></div>
+      <div class="card" style="--cor: #ff6b6b"><h3>D</h3><p>Competências ainda não apropriadas</p></div>
+    </div>
+  </div>
+  <aside class="notes">75% de 50 h = 37,5 h, ou seja, dá para faltar no máximo cerca de 4 encontros. A menção vem da observação ao longo do curso, não de uma prova única.</aside>
+</section>
+
+<!-- ===================== POR QUE ESTAMOS AQUI ===================== -->
+
+<section>
+  <h2>O objetivo do curso</h2>
+  <blockquote style="width: 100%; font-size: .8em; text-align: left">
+    “Capacitar os alunos a compreender e aplicar técnicas, metodologias e ferramentas utilizadas no desenvolvimento de sistemas, desde o levantamento de requisitos até a implementação, testes e manutenção, desenvolvendo habilidades para criar soluções eficientes, organizadas e alinhadas às necessidades dos usuários e das organizações.”
+  </blockquote>
+  <p class="suave" style="font-size: .5em">Plano de curso — Senac RS</p>
+  <aside class="notes">Destacar: "alinhadas às necessidades dos usuários e das organizações". O sistema existe para resolver um problema de alguém.</aside>
+</section>
+
+<section>
+  <h2>Ao final, você vai saber…</h2>
+  <div class="cards" style="--n: 2">
+    <div class="card camada-front">
+      <span class="etiqueta">Front-end · 25 h</span>
+      <p>Desenvolver interfaces web responsivas, dinâmicas e componentizadas utilizando JavaScript moderno e React.js, integrando componentes, gerenciamento de estados e serviços externos, de acordo com os requisitos da aplicação e as necessidades dos usuários.</p>
+    </div>
+    <div class="card camada-back">
+      <span class="etiqueta">Back-end · 25 h</span>
+      <p>Desenvolver aplicações Back-end utilizando Node.js, Express e banco de dados SQL, implementando APIs, regras de negócio e mecanismos de persistência e integração de dados, de acordo com os requisitos da aplicação e as necessidades da organização.</p>
+    </div>
+  </div>
+  <aside class="notes">São as duas competências do plano de curso, uma por componente. Não precisa ler tudo: aponte as palavras-chave (interfaces, componentes, APIs, banco de dados).</aside>
+</section>
+
+<section>
+  <h2>Nosso fio condutor: o Sistema de Pedidos</h2>
+  <div class="colunas">
+    <div class="mock">
+      <div class="barra">Vence Tudo · Pedidos</div>
+      <div class="corpo">
+        <div class="campos">
+          <label>Cliente<span class="input">Agro Silva</span></label>
+          <label>Produto<span class="input">Plantadeira 9 linhas</span></label>
+          <label>Qtd.<span class="input">2</span></label>
+          <span class="botao">Salvar pedido</span>
+        </div>
+        <table>
+          <tr><th>Nº</th><th>Cliente</th><th>Itens</th><th>Data</th></tr>
+          <tr><td>6</td><td>Fazenda Boa Vista</td><td>3</td><td>02/10</td></tr>
+          <tr><td>5</td><td>Agro Silva</td><td>1</td><td>30/09</td></tr>
+          <tr><td>4</td><td>Coop. Planalto</td><td>5</td><td>29/09</td></tr>
+        </table>
+      </div>
+    </div>
+    <div>
+      <ul>
+        <li><strong>Clientes</strong> fazem pedidos</li>
+        <li><strong>Produtos</strong>: máquinas e peças</li>
+        <li><strong>Pedidos</strong> reúnem vários produtos</li>
+      </ul>
+      <p class="suave" style="font-size: .6em">Simples de entender, mas com tudo o que um sistema real tem: tela, regras, rede e banco de dados.</p>
+    </div>
+  </div>
+  <aside class="notes">É um exemplo didático, não um sistema da empresa. Vamos voltar a ele o curso inteiro. Pergunte: quem aqui lida com pedidos no dia a dia?</aside>
+</section>
+
+<!-- ===================== ANALOGIA DO RESTAURANTE ===================== -->
+
+<section>
+  <h2>Um sistema funciona como um restaurante</h2>
+  <div class="cards" style="--n: 4">
+    <div class="card camada-front"><div class="icone">🍽️</div><h3>Salão</h3><p>Onde o cliente vê o cardápio e faz o pedido.</p><p><strong>Front-end</strong></p></div>
+    <div class="card camada-rede"><div class="icone">🧾</div><h3>Garçom</h3><p>Leva a comanda e traz o prato, num formato combinado.</p><p><strong>API / HTTP</strong></p></div>
+    <div class="card camada-back"><div class="icone">👩‍🍳</div><h3>Cozinha</h3><p>Segue as receitas e as regras da casa.</p><p><strong>Back-end</strong></p></div>
+    <div class="card camada-banco"><div class="icone">📦</div><h3>Despensa</h3><p>Guarda tudo organizado e etiquetado.</p><p><strong>Banco de dados</strong></p></div>
+  </div>
+  <aside class="notes">O cliente nunca entra na cozinha nem na despensa: tudo passa pelo garçom. A comanda é o nosso JSON.</aside>
+</section>
+
+<section>
+  <h2>…mas toda analogia tem limite</h2>
+  <ul>
+    <li>O "garçom" não é uma pessoa: é um <strong>protocolo</strong>, um conjunto de regras de comunicação</li>
+    <li>A "cozinha" atende <strong>milhares de mesas</strong> ao mesmo tempo</li>
+    <li>O "salão" também pensa: a tela pode conferir um campo vazio <strong>antes</strong> de chamar o garçom</li>
+    <li>A "despensa" tem regras rígidas: nada entra sem etiqueta e sem lugar definido</li>
+  </ul>
+  <aside class="notes">Este slide é para quem já programa não achar a analogia simplista demais. Ela serve como mapa, não como definição.</aside>
+</section>
+
+<!-- ===================== VIAGEM — PARTE 1 ===================== -->
+
+<section>
+  <h2>A viagem de um pedido</h2>
+  <p>Ana, do comercial, registra um pedido da <strong>Agro Silva</strong>: 2 plantadeiras e 10 kits de discos de corte. Ela clica em <strong>Salvar pedido</strong>.</p>
+  <p class="suave" style="font-size: .7em">O que acontece entre o clique e o “Pedido nº 7 salvo”?</p>
+  <div class="viagem" data-atual="nenhuma"></div>
+  <aside class="notes">Este é o mapa da aula. Cada parada é um tema do curso. Vamos seguir o pedido da Ana do clique até o banco e de volta.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="tela"></div>
+  <span class="etiqueta camada-front">Parada 1 · A tela</span>
+  <div class="colunas texto-codigo">
+    <div>
+      <h2>HTML: a estrutura</h2>
+      <p style="font-size: .75em">Diz <strong>o que</strong> existe na página: um formulário, campos, um botão.</p>
+      <p class="suave" style="font-size: .6em">É o esqueleto. Sem estilo, sem comportamento.</p>
+    </div>
+<pre><code class="language-html" data-trim><script type="text/template">
+<form id="form-pedido">
+  <label>Cliente
+    <select name="cliente">
+      <option>Agro Silva</option>
+    </select>
+  </label>
+  <label>Quantidade
+    <input type="number" name="quantidade" value="2">
+  </label>
+  <button type="submit">Salvar pedido</button>
+</form>
+</script></code></pre>
+  </div>
+  <aside class="notes">HTML não é linguagem de programação, é de marcação: descreve o conteúdo. As "tags" dizem o papel de cada pedaço.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="tela"></div>
+  <span class="etiqueta camada-front">Parada 1 · A tela</span>
+  <div class="colunas texto-codigo">
+    <div>
+      <h2>CSS: a aparência</h2>
+      <p style="font-size: .75em">Diz <strong>como</strong> as coisas aparecem: cores, tamanhos, espaçamentos, posições.</p>
+      <p class="suave" style="font-size: .6em">O mesmo HTML pode ter visuais completamente diferentes.</p>
+    </div>
+<pre><code class="language-css" data-trim>
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+button {
+  background: #2563eb;
+  color: white;
+  border-radius: 8px;
+}
+</code></pre>
+  </div>
+  <aside class="notes">Analogia: o HTML é a planta da casa, o CSS é a pintura e a decoração.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="tela"></div>
+  <span class="etiqueta camada-front">Parada 1 · A tela</span>
+  <h2>Flexbox, Grid e telas de todos os tamanhos</h2>
+  <div class="colunas" style="grid-template-columns: 1.6fr 1fr">
+    <div>
+      <div class="tela-demo desktop">
+        <div class="bloco topo">Cabeçalho</div>
+        <div class="bloco">Filtros</div>
+        <div class="bloco">Lista de pedidos</div>
+      </div>
+      <p class="suave centro" style="font-size: .5em">Computador: <strong>Grid</strong> em duas colunas</p>
+    </div>
+    <div>
+      <div class="tela-demo celular">
+        <div class="bloco">Cabeçalho</div>
+        <div class="bloco">Filtros</div>
+        <div class="bloco principal">Lista de pedidos</div>
+      </div>
+      <p class="suave centro" style="font-size: .5em">Celular: <strong>Flexbox</strong> em uma coluna</p>
+    </div>
+  </div>
+  <aside class="notes">Responsividade: a mesma página se adapta ao tamanho da tela. Flexbox organiza numa direção (linha ou coluna), Grid organiza em linhas e colunas ao mesmo tempo.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="js"></div>
+  <span class="etiqueta camada-front">Parada 2 · A lógica</span>
+  <div class="colunas texto-codigo">
+    <div>
+      <h2>JavaScript: o comportamento</h2>
+      <p style="font-size: .75em">Diz <strong>o que acontece</strong> quando a Ana clica: pega os dados, confere, envia.</p>
+      <p class="suave" style="font-size: .6em">Agora sim, uma linguagem de programação.</p>
+    </div>
+<pre><code class="language-js" data-trim>
+const form = document.querySelector('#form-pedido');
+
+form.addEventListener('submit', (evento) => {
+  evento.preventDefault();
+  const dados = new FormData(form);
+  console.log('Salvando pedido de', dados.get('cliente'));
+});
+</code></pre>
+  </div>
+  <aside class="notes">HTML = estrutura, CSS = aparência, JS = comportamento. É a tríade do front-end. O JS reage a eventos: clique, digitação, carregamento.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="js"></div>
+  <span class="etiqueta camada-front">Parada 2 · A lógica</span>
+  <h2>JavaScript moderno (ES6+)</h2>
+<pre><code class="language-js" data-trim><script type="text/template">
+const itens = [
+  { produto: 'Plantadeira 9 linhas', qtd: 2, preco: 180000 },
+  { produto: 'Rolamento 6205',       qtd: 0, preco: 45 },
+];
+
+// filter: fica só com os itens que têm quantidade
+const validos = itens.filter((item) => item.qtd > 0);
+
+// map + desestruturação: transforma cada item no seu total
+const totais = validos.map(({ qtd, preco }) => qtd * preco);
+</script></code></pre>
+  <p class="suave" style="font-size: .55em">Funções de seta (<code>=&gt;</code>), desestruturação (<code>{ qtd, preco }</code>), <code>map</code> e <code>filter</code>: a base de tudo o que faremos em React.</p>
+  <aside class="notes">Não é para entender a sintaxe hoje. Mostre a ideia: filter separa, map transforma. Isso aparece o tempo todo em React.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="js"></div>
+  <span class="etiqueta camada-front">Parada 2 · A lógica</span>
+  <div class="colunas texto-codigo">
+    <div>
+      <h2>Esperar sem travar</h2>
+      <p style="font-size: .7em">Salvar o pedido leva um tempo: a resposta vem pela rede.</p>
+      <p style="font-size: .7em">🍔 Como pedir lanche no balcão: você recebe uma senha e <strong>não fica parado</strong> esperando.</p>
+      <p class="suave" style="font-size: .55em">Promises e <code>async/await</code></p>
+    </div>
+<pre><code class="language-js" data-trim>
+async function salvarPedido(pedido) {
+  const resposta = await fetch('/pedidos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(pedido),
+  });
+  return resposta.json();
+}
+</code></pre>
+  </div>
+  <aside class="notes">Síncrono: um passo de cada vez, esperando cada um terminar. Assíncrono: dispara a tarefa demorada e continua; quando a resposta chega, o código retoma. O await marca o ponto de espera.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="react"></div>
+  <span class="etiqueta camada-front">Parada 3 · Os componentes</span>
+  <h2>React: a tela em peças de Lego</h2>
+  <div class="colunas" style="grid-template-columns: 1.4fr 1fr">
+    <div class="componente"><span class="nome">&lt;App&gt;</span>
+      <div class="lado-a-lado">
+        <div class="componente"><span class="nome">&lt;FormPedido&gt;</span>Cliente, produto, quantidade, botão</div>
+        <div class="componente"><span class="nome">&lt;ListaPedidos&gt;</span>
+          <div class="componente"><span class="nome">&lt;ItemPedido&gt;</span>Nº 6 · Fazenda Boa Vista</div>
+          <div class="componente"><span class="nome">&lt;ItemPedido&gt;</span>Nº 5 · Agro Silva</div>
+        </div>
+      </div>
+    </div>
+    <ul style="font-size: .7em">
+      <li>Cada pedaço da tela é um <strong>componente</strong></li>
+      <li>Escrito <strong>uma vez</strong>, reutilizado muitas vezes</li>
+      <li>Mais fácil de manter em sistemas grandes</li>
+    </ul>
+  </div>
+  <aside class="notes">React é uma biblioteca JavaScript para montar interfaces. O ItemPedido é escrito uma vez e usado para cada pedido da lista.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="react"></div>
+  <span class="etiqueta camada-front">Parada 3 · Os componentes</span>
+  <div class="colunas texto-codigo">
+    <div>
+      <h2>Props e estado</h2>
+      <ul style="font-size: .65em">
+        <li><strong>Props</strong>: o que o componente <strong>recebe</strong> de fora (cliente, total)</li>
+        <li><strong>Estado</strong> (<code>useState</code>): o que o componente <strong>lembra</strong> e que, quando muda, redesenha a tela</li>
+      </ul>
+    </div>
+<pre><code class="language-jsx" data-trim><script type="text/template">
+function ItemPedido({ cliente, total }) {
+  return <li>{cliente} — R$ {total}</li>;
+}
+
+function ListaPedidos() {
+  const [pedidos, setPedidos] = useState([]);
+
+  return (
+    <ul>
+      {pedidos.map((p) => <ItemPedido key={p.id} {...p} />)}
+    </ul>
+  );
+}
+</script></code></pre>
+  </div>
+  <aside class="notes">Repare no map de novo: a lista de pedidos vira uma lista de componentes. Isso é renderização dinâmica.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="react"></div>
+  <span class="etiqueta camada-front">Parada 3 · Os componentes</span>
+  <div class="colunas texto-codigo">
+    <div>
+      <h2>useEffect: falar com o mundo lá fora</h2>
+      <p style="font-size: .7em">“Quando a tela abrir, busque os pedidos no servidor.”</p>
+      <p class="suave" style="font-size: .55em">É aqui que o front-end chama a API: a próxima parada.</p>
+    </div>
+<pre><code class="language-jsx" data-trim>
+useEffect(() => {
+  fetch('/pedidos')
+    .then((resposta) => resposta.json())
+    .then((lista) => setPedidos(lista));
+}, []);
+</code></pre>
+  </div>
+  <aside class="notes">useEffect executa um efeito colateral: algo fora do desenho da tela, como buscar dados. O [] no fim significa "só uma vez, quando o componente aparece".</aside>
+</section>
+
+<section class="centro">
+  <h1>☕ Intervalo</h1>
+  <p class="sub suave">15 minutos. Na volta, o pedido sai do navegador.</p>
+  <div class="viagem" data-atual="react"></div>
+  <aside class="notes">Marcar o horário de retorno no quadro.</aside>
+</section>
+
+<!-- ===================== VIAGEM — PARTE 2 ===================== -->
+
+<section>
+  <div class="viagem mini" data-atual="rede"></div>
+  <span class="etiqueta camada-rede">Parada 4 · A rede</span>
+  <h2>Requisição e resposta (HTTP)</h2>
+  <div class="troca">
+    <div class="ponta camada-front">🖥️ Navegador<br><small>da Ana</small></div>
+    <div class="mensagens">
+      <div class="msg ida"><strong>Requisição</strong>: <code>POST /pedidos</code> + dados do pedido</div>
+      <div class="msg volta"><strong>Resposta</strong>: <code>201 Created</code> + pedido nº 7</div>
+    </div>
+    <div class="ponta camada-back">🗄️ Servidor<br><small>da empresa</small></div>
+  </div>
+  <p class="suave" style="font-size: .6em; margin-top: 1.2em">HTTP é o “idioma” da web: toda conversa é uma pergunta (requisição) seguida de uma resposta.</p>
+  <aside class="notes">Esse é o garçom da analogia. Toda página que você abre é uma requisição HTTP. O navegador pede, o servidor responde.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="rede"></div>
+  <span class="etiqueta camada-rede">Parada 4 · A rede</span>
+  <div class="colunas texto-codigo">
+    <div>
+      <h2>JSON: a comanda</h2>
+      <p style="font-size: .7em">O formato combinado para os dados viajarem.</p>
+      <p class="suave" style="font-size: .55em">Texto simples, legível por pessoas e por qualquer linguagem.</p>
+    </div>
+<pre><code class="language-json" data-trim>
+{
+  "clienteId": 12,
+  "itens": [
+    { "produtoId": 3, "quantidade": 2 },
+    { "produtoId": 8, "quantidade": 10 }
+  ]
+}
+</code></pre>
+  </div>
+  <aside class="notes">Note que viajam os números (ids), não os nomes. O servidor sabe quem é o cliente 12. JSON é praticamente a sintaxe de objetos do JavaScript.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="rede"></div>
+  <span class="etiqueta camada-rede">Parada 4 · A rede</span>
+  <h2>API e REST: um cardápio de operações</h2>
+  <div class="colunas" style="grid-template-columns: 1.3fr 1fr; align-items: start">
+    <table class="dados camada-rede">
+      <tr><th>Verbo</th><th>Endereço</th><th>Significa</th></tr>
+      <tr><td><code>GET</code></td><td><code>/pedidos</code></td><td>Listar pedidos</td></tr>
+      <tr><td><code>GET</code></td><td><code>/pedidos/7</code></td><td>Ver o pedido 7</td></tr>
+      <tr><td><code>POST</code></td><td><code>/pedidos</code></td><td>Criar um pedido</td></tr>
+      <tr><td><code>PUT</code></td><td><code>/pedidos/7</code></td><td>Alterar o pedido 7</td></tr>
+      <tr><td><code>DELETE</code></td><td><code>/pedidos/7</code></td><td>Excluir o pedido 7</td></tr>
+    </table>
+    <table class="dados camada-rede">
+      <tr><th>Código</th><th>Resposta</th></tr>
+      <tr><td><code>200</code></td><td>OK</td></tr>
+      <tr><td><code>201</code></td><td>Criado</td></tr>
+      <tr><td><code>400</code></td><td>Pedido inválido</td></tr>
+      <tr><td><code>404</code></td><td>Não encontrado</td></tr>
+      <tr><td><code>500</code></td><td>Erro no servidor</td></tr>
+    </table>
+  </div>
+  <aside class="notes">API é o cardápio: a lista do que se pode pedir ao servidor. REST é um padrão de organização, com substantivos no endereço e verbos HTTP para a ação. Códigos 2xx dão certo, 4xx são erro de quem pediu e 5xx são erro do servidor.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="servidor"></div>
+  <span class="etiqueta camada-back">Parada 5 · O servidor</span>
+  <div class="colunas texto-codigo">
+    <div>
+      <h2>Node.js + Express</h2>
+      <ul style="font-size: .65em">
+        <li><strong>Node.js</strong>: JavaScript rodando fora do navegador, no servidor</li>
+        <li><strong>Express</strong>: organiza as <strong>rotas</strong>, ou seja, qual código responde a cada endereço</li>
+      </ul>
+    </div>
+<pre><code class="language-js" data-trim>
+const express = require('express');
+const app = express();
+app.use(express.json());
+
+app.post('/pedidos', async (req, res) => {
+  const pedido = await salvarNoBanco(req.body);
+  res.status(201).json(pedido);
+});
+
+app.listen(3000);
+</code></pre>
+  </div>
+  <aside class="notes">A mesma linguagem do front-end, agora na cozinha. Isso é uma grande vantagem do curso: um só idioma do começo ao fim.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="servidor"></div>
+  <span class="etiqueta camada-back">Parada 5 · O servidor</span>
+  <h2>Middlewares e regras de negócio</h2>
+  <div class="fluxo" style="margin-bottom: .8em">
+    <span class="passo camada-rede">requisição</span><span class="seta">→</span>
+    <span class="passo camada-back">express.json()</span><span class="seta">→</span>
+    <span class="passo camada-back">validarPedido</span><span class="seta">→</span>
+    <span class="passo camada-back">criarPedido</span><span class="seta">→</span>
+    <span class="passo camada-rede">resposta</span>
+  </div>
+<pre><code class="language-js" data-trim><script type="text/template">
+function validarPedido(req, res, next) {
+  const invalido = req.body.itens.some((item) => item.quantidade <= 0);
+  if (invalido) {
+    return res.status(400).json({ erro: 'Quantidade deve ser maior que zero' });
+  }
+  next(); // tudo certo: segue para o próximo da fila
+}
+</script></code></pre>
+  <aside class="notes">Middleware é um posto de checagem na fila. A regra "quantidade maior que zero" é uma regra de negócio: ela mora no servidor, porque a tela pode ser burlada.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="banco"></div>
+  <span class="etiqueta camada-banco">Parada 6 · O banco</span>
+  <h2>Tabelas, campos e registros</h2>
+  <div class="colunas camada-banco" style="grid-template-columns: 1fr 1.2fr; align-items: start">
+    <table class="dados">
+      <caption>clientes</caption>
+      <tr><th>id</th><th>nome</th><th>cidade</th></tr>
+      <tr><td>12</td><td>Agro Silva</td><td>Ibirubá</td></tr>
+      <tr><td>15</td><td>Fazenda Boa Vista</td><td>Cruz Alta</td></tr>
+    </table>
+    <table class="dados">
+      <caption>produtos</caption>
+      <tr><th>id</th><th>nome</th><th>preco</th></tr>
+      <tr><td>3</td><td>Plantadeira 9 linhas</td><td>180000.00</td></tr>
+      <tr><td>8</td><td>Kit de discos de corte</td><td>1250.00</td></tr>
+      <tr><td>9</td><td>Rolamento 6205</td><td>45.00</td></tr>
+    </table>
+  </div>
+  <p class="suave" style="font-size: .55em; margin-top: 1em">Parece uma planilha, mas com regras: cada coluna tem um tipo e cada linha tem um identificador único.</p>
+  <aside class="notes">Vocabulário: tabela, campo (coluna) e registro (linha). O id é a chave primária: identifica cada registro sem ambiguidade.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="banco"></div>
+  <span class="etiqueta camada-banco">Parada 6 · O banco</span>
+  <h2>Chaves e relacionamentos</h2>
+  <div class="er">
+    <div class="entidade"><div class="titulo">clientes</div><ul><li>🔑 id</li><li>nome</li><li>cidade</li></ul></div>
+    <div class="rel">1 : N<span></span></div>
+    <div class="entidade"><div class="titulo">pedidos</div><ul><li>🔑 id</li><li>🔗 cliente_id</li><li>data</li></ul></div>
+    <div class="rel">1 : N<span></span></div>
+    <div class="entidade"><div class="titulo">itens_pedido</div><ul><li>🔗 pedido_id</li><li>🔗 produto_id</li><li>quantidade</li></ul></div>
+    <div class="rel">N : 1<span></span></div>
+    <div class="entidade"><div class="titulo">produtos</div><ul><li>🔑 id</li><li>nome</li><li>preco</li></ul></div>
+  </div>
+  <ul style="font-size: .6em; margin-top: 1em">
+    <li><strong>1:N</strong>: um cliente tem muitos pedidos</li>
+    <li><strong>N:N</strong>: um pedido tem muitos produtos, e um produto aparece em muitos pedidos (a tabela <code>itens_pedido</code> faz a ponte)</li>
+  </ul>
+  <aside class="notes">🔑 é a chave primária e 🔗 é a chave estrangeira, que aponta para outra tabela. É ela que impede um pedido de apontar para um cliente que não existe.</aside>
+</section>
+
+<section>
+  <div class="viagem mini" data-atual="banco"></div>
+  <span class="etiqueta camada-banco">Parada 6 · O banco</span>
+  <h2>SQL: a língua do banco</h2>
+<pre><code class="language-sql" data-trim>
+-- Gravar o pedido da Ana (o banco gerou o nº 7)
+INSERT INTO pedidos (cliente_id, data) VALUES (12, '2026-10-05');
+INSERT INTO itens_pedido (pedido_id, produto_id, quantidade)
+VALUES (7, 3, 2), (7, 8, 10);
+
+-- Consultar: quem comprou o quê?
+SELECT c.nome, p.id AS pedido, pr.nome AS produto, i.quantidade
+FROM pedidos p
+JOIN clientes c     ON c.id = p.cliente_id
+JOIN itens_pedido i ON i.pedido_id = p.id
+JOIN produtos pr    ON pr.id = i.produto_id;
+</code></pre>
+  <aside class="notes">SQL é quase inglês: insira em, selecione de, junte. O JOIN usa as chaves para reconstruir a informação espalhada pelas tabelas.</aside>
+</section>
+
+<section>
+  <h2>E a viagem de volta</h2>
+  <div class="viagem" data-atual="volta"></div>
+  <ol style="font-size: .7em">
+    <li>O <strong>banco</strong> confirma: pedido nº 7 gravado</li>
+    <li>O <strong>servidor</strong> responde <code>201 Created</code> com o pedido em JSON</li>
+    <li>O <strong>React</strong> atualiza o estado (<code>setPedidos</code>)</li>
+    <li>A <strong>tela</strong> se redesenha: o pedido nº 7 aparece na lista</li>
+  </ol>
+  <p class="suave" style="font-size: .6em">Tudo isso em menos de um segundo.</p>
+  <aside class="notes">Fechar o ciclo. Perguntar à turma: em qual parada vocês acham que mais coisas podem dar errado?</aside>
+</section>
+
+<section>
+  <h2>Full Stack = conhecer a viagem inteira</h2>
+  <div class="viagem" data-atual="todas"></div>
+  <p class="centro" style="font-size: .8em">A <strong>tela</strong> mostra, o <strong>JS</strong> reage, o <strong>React</strong> organiza,<br>a <strong>rede</strong> transporta, o <strong>servidor</strong> decide e o <strong>banco</strong> guarda.</p>
+  <aside class="notes">Esta frase é o resumo da aula. Peça para a turma repetir em voz alta. Um desenvolvedor full stack não precisa ser especialista em tudo, mas entende o caminho completo.</aside>
+</section>
+
+<!-- ===================== ORGANIZAÇÃO DO CURSO ===================== -->
+
+<section>
+  <h2>Como o curso se organiza</h2>
+  <div class="cards" style="--n: 2">
+    <div class="card camada-front">
+      <span class="etiqueta">1ª fase · 25 h</span>
+      <h3>Desenvolvimento Front-end Moderno</h3>
+      <ul>
+        <li>Estrutura e Estilização Avançada</li>
+        <li>JavaScript Essencial para React (ES6+)</li>
+        <li>Fundamentos de React.js</li>
+        <li>Gerenciamento de Estado e Ciclo de Vida</li>
+        <li>Consumo de APIs no Front-end</li>
+      </ul>
+    </div>
+    <div class="card camada-back">
+      <span class="etiqueta">2ª fase · 25 h</span>
+      <h3>Desenvolvimento Back-end e Persistência de Dados</h3>
+      <ul>
+        <li>Servidores e Rotas com Node.js</li>
+        <li>Regras de Negócio e Middlewares</li>
+        <li>Modelagem de Dados com SQL</li>
+        <li>Manipulação do Banco de Dados</li>
+        <li>Integração de Sistemas (Full Stack)</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">A ordem do curso não é a ordem da viagem: primeiro aprendemos tudo o que roda no navegador e depois tudo o que roda no servidor. No fim, juntamos as duas pontas.</aside>
+</section>
+
+<section>
+  <h2>Nossos 17 encontros</h2>
+  <div class="datas">
+    <div class="dia hoje"><b>05/10</b>seg</div>
+    <div class="dia"><b>09/10</b>sex</div>
+    <div class="dia"><b>16/10</b>sex</div>
+    <div class="dia"><b>20/10</b>ter</div>
+    <div class="dia"><b>21/10</b>qua</div>
+    <div class="dia"><b>22/10</b>qui</div>
+    <div class="dia"><b>27/10</b>ter</div>
+    <div class="dia"><b>28/10</b>qua</div>
+    <div class="dia"><b>29/10</b>qui</div>
+    <div class="dia"><b>03/11</b>ter</div>
+    <div class="dia"><b>04/11</b>qua</div>
+    <div class="dia"><b>05/11</b>qui</div>
+    <div class="dia"><b>10/11</b>ter</div>
+    <div class="dia"><b>11/11</b>qua</div>
+    <div class="dia"><b>12/11</b>qui</div>
+    <div class="dia"><b>17/11</b>ter</div>
+    <div class="dia"><b>18/11</b>qua</div>
+  </div>
+  <p class="suave" style="font-size: .55em; margin-top: 1em">3 h por encontro (o último tem 2 h). A partir de 20/10 o ritmo é fixo: terça, quarta e quinta.</p>
+  <aside class="notes">Sugira que anotem as datas na agenda. Lembre os 75% de frequência.</aside>
+</section>
+
+<section>
+  <h2>Nossas ferramentas</h2>
+  <div class="cards" style="--n: 3">
+    <div class="card camada-front"><div class="icone">📝</div><h3>VS Code</h3><p>Editor onde escrevemos todo o código</p></div>
+    <div class="card camada-front"><div class="icone">🌐</div><h3>Navegador</h3><p>Chrome, Firefox ou Edge, com as ferramentas de desenvolvedor</p></div>
+    <div class="card camada-back"><div class="icone">🟩</div><h3>Node.js + npm</h3><p>Roda JavaScript no servidor e instala bibliotecas</p></div>
+    <div class="card camada-banco"><div class="icone">🗃️</div><h3>SGBD SQL</h3><p>MySQL ou PostgreSQL</p></div>
+    <div class="card camada-rede"><div class="icone">📮</div><h3>Postman / Insomnia</h3><p>Testa a API sem precisar da tela</p></div>
+    <div class="card"><div class="icone">🌳</div><h3>Git + GitHub/GitLab</h3><p>Histórico e compartilhamento do código</p></div>
+  </div>
+  <aside class="notes">Não precisa instalar nada hoje. Use as cores dos cartões para mostrar em que parada da viagem cada ferramenta atua.</aside>
+</section>
+
+<!-- ===================== DINÂMICA ===================== -->
+
+<section>
+  <h2>Dinâmica: em que camada?</h2>
+  <p style="font-size: .8em">Vou mostrar problemas reais de sistemas. Em grupos, decidam: <strong>em que parada da viagem</strong> você começaria a investigar?</p>
+  <div class="viagem" data-atual="nenhuma"></div>
+  <p class="suave" style="font-size: .6em">Cerca de 2 minutos por situação. Vale discordar: muitas vezes há mais de uma resposta defensável.</p>
+  <aside class="notes">Formar grupos de 3 ou 4, misturando níveis da sondagem. Cada grupo responde e justifica antes de você revelar (seta para baixo/direita mostra a resposta).</aside>
+</section>
+
+<section>
+  <h2>Situação 1</h2>
+  <p class="situacao">“No celular, o botão Salvar pedido aparece cortado pela metade.”</p>
+  <div class="opcoes"><span>Tela</span><span>JavaScript</span><span>React</span><span>Rede</span><span>Servidor</span><span>Banco</span></div>
+  <div class="resposta camada-front fragment"><strong>Tela (CSS).</strong> Problema de layout responsivo: Flexbox ou Grid não se adaptaram à largura do celular.</div>
+  <aside class="notes">Pista: o problema só acontece em um tamanho de tela, e os dados estão certos.</aside>
+</section>
+
+<section>
+  <h2>Situação 2</h2>
+  <p class="situacao">“O total do pedido aparece como <code>NaN</code> na tela.”</p>
+  <div class="opcoes"><span>Tela</span><span>JavaScript</span><span>React</span><span>Rede</span><span>Servidor</span><span>Banco</span></div>
+  <div class="resposta camada-front fragment"><strong>JavaScript.</strong> “Not a Number”: alguma conta recebeu texto ou um valor vazio no lugar de um número.</div>
+  <aside class="notes">Pista: NaN é uma mensagem típica do JavaScript. Investigar o cálculo do total (map com qtd * preco).</aside>
+</section>
+
+<section>
+  <h2>Situação 3</h2>
+  <p class="situacao">“Um pedido foi salvo com quantidade −3.”</p>
+  <div class="opcoes"><span>Tela</span><span>JavaScript</span><span>React</span><span>Rede</span><span>Servidor</span><span>Banco</span></div>
+  <div class="resposta camada-back fragment"><strong>Servidor (validação).</strong> A regra de negócio “quantidade maior que zero” precisa estar no back-end. A tela até pode avisar, mas o servidor é quem garante.</div>
+  <aside class="notes">Discussão rica: a tela deveria barrar? Sim, mas não basta, porque qualquer um pode enviar uma requisição direto à API (Postman!). O banco também pode ter uma restrição como segunda linha de defesa.</aside>
+</section>
+
+<section>
+  <h2>Situação 4</h2>
+  <p class="situacao">“A lista de pedidos fica ‘carregando…’ para sempre.”</p>
+  <div class="opcoes"><span>Tela</span><span>JavaScript</span><span>React</span><span>Rede</span><span>Servidor</span><span>Banco</span></div>
+  <div class="resposta camada-rede fragment"><strong>Rede / API.</strong> A requisição não voltou: o servidor está fora do ar, o endereço está errado ou houve um erro sem tratamento.</div>
+  <aside class="notes">Primeiro passo: abrir as ferramentas de desenvolvedor do navegador, aba Rede, e ver a requisição e o código de resposta.</aside>
+</section>
+
+<section>
+  <h2>Situação 5</h2>
+  <p class="situacao">“O pedido está no banco, mas não aparece na tela.”</p>
+  <div class="opcoes"><span>Tela</span><span>JavaScript</span><span>React</span><span>Rede</span><span>Servidor</span><span>Banco</span></div>
+  <div class="resposta camada-front fragment"><strong>React (estado).</strong> Os dados chegaram, mas o estado não foi atualizado, ou o <code>useEffect</code> não buscou de novo.</div>
+  <aside class="notes">A pista é "está no banco": a parte de baixo da viagem funcionou. O problema está na volta, no front.</aside>
+</section>
+
+<section>
+  <h2>Situação 6</h2>
+  <p class="situacao">“Excluíram um cliente e os pedidos dele ficaram apontando para ninguém.”</p>
+  <div class="opcoes"><span>Tela</span><span>JavaScript</span><span>React</span><span>Rede</span><span>Servidor</span><span>Banco</span></div>
+  <div class="resposta camada-banco fragment"><strong>Banco (chave estrangeira).</strong> Faltou a regra que liga <code>pedidos.cliente_id</code> a <code>clientes.id</code> e impede registros órfãos.</div>
+  <aside class="notes">Relembrar o 🔗 do diagrama. Integridade dos dados é responsabilidade do modelo do banco.</aside>
+</section>
+
+<!-- ===================== FECHAMENTO ===================== -->
+
+<section>
+  <h2>Recapitulando</h2>
+  <div class="viagem" data-atual="todas"></div>
+  <ul style="font-size: .7em">
+    <li>Todo sistema web é uma <strong>viagem</strong> de ida e volta entre a tela e o banco</li>
+    <li>Cada tecnologia do curso cuida de <strong>uma parada</strong></li>
+    <li>Saber onde cada coisa mora é o que permite <strong>construir e consertar</strong></li>
+  </ul>
+  <aside class="notes">Retomar as expectativas anotadas na abertura: onde cada uma se encaixa na viagem?</aside>
+</section>
+
+<section>
+  <h2>Próximo encontro</h2>
+  <div class="colunas">
+    <div class="card camada-front" style="font-size: .8em">
+      <span class="etiqueta">Sexta · 09/10/2026</span>
+      <h3>Começamos a 1ª fase</h3>
+      <p>Desenvolvimento Front-end Moderno</p>
+    </div>
+    <div>
+      <h3>Para pensar até lá</h3>
+      <p style="font-size: .7em">Escolha um sistema que você usa no trabalho. Tente identificar as paradas da viagem: o que é tela, o que deve estar no servidor e o que fica guardado no banco?</p>
+    </div>
+  </div>
+  <aside class="notes">A reflexão não vale nota: serve para abrir a próxima aula com exemplos da própria empresa.</aside>
+</section>
+
+<section class="centro">
+  <h1>Dúvidas?</h1>
+  <p class="sub suave">Obrigado e até sexta!</p>
+  <div class="viagem" data-atual="todas"></div>
+</section>
+
+</div>
+</div>
+
+<nav class="navegacao" aria-label="Navegação dos slides">
+  <button type="button" data-acao="anterior" aria-label="Slide anterior">‹</button>
+  <span class="contador" aria-live="polite"><b>1</b> / 1</span>
+  <button type="button" data-acao="proximo" aria-label="Próximo slide">›</button>
+</nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/6.0.2/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/6.0.2/plugin/notes.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/6.0.2/plugin/highlight.min.js"></script>
+<script>
+  // As 6 paradas da viagem, usadas por todos os diagramas da apresentação
+  const PARADAS = [
+    { id: 'tela',     nome: 'Tela',        tec: 'HTML + CSS',     verbo: 'mostra',     camada: 'front' },
+    { id: 'js',       nome: 'Lógica',      tec: 'JavaScript',     verbo: 'reage',      camada: 'front' },
+    { id: 'react',    nome: 'Componentes', tec: 'React',          verbo: 'organiza',   camada: 'front' },
+    { id: 'rede',     nome: 'Rede',        tec: 'HTTP + API',     verbo: 'transporta', camada: 'rede' },
+    { id: 'servidor', nome: 'Servidor',    tec: 'Node + Express', verbo: 'decide',     camada: 'back' },
+    { id: 'banco',    nome: 'Banco',       tec: 'SQL',            verbo: 'guarda',     camada: 'banco' },
+  ];
+
+  const GRUPOS = [
+    { rotulo: 'No navegador (front-end)',  camada: 'front', colunas: '1 / 6' },
+    { rotulo: 'No caminho',                camada: 'rede',  colunas: '7 / 8' },
+    { rotulo: 'Na empresa (back-end)',     camada: 'back',  colunas: '9 / 12' },
+  ];
+
+  // data-atual: id de uma parada, "todas", "volta" ou "nenhuma"
+  function desenharViagem(el) {
+    const atual = el.dataset.atual;
+    const seta = atual === 'volta' ? '←' : '→';
+    const destaca = (id) => atual === 'todas' || atual === 'volta' || atual === id;
+
+    el.classList.toggle('com-atual', !['todas', 'volta', 'nenhuma'].includes(atual));
+    el.innerHTML = PARADAS.map((p, i) => `
+      ${i > 0 ? `<span class="seta">${seta}</span>` : ''}
+      <div class="parada camada-${p.camada} ${destaca(p.id) && atual !== 'nenhuma' ? 'atual' : ''}">
+        <span class="num">${i + 1}</span>
+        <strong>${p.nome}</strong>
+        <small>${p.tec}</small>
+        <em>${p.verbo}</em>
+      </div>`).join('') +
+      GRUPOS.map((g) => `<div class="grupo camada-${g.camada}" style="grid-column: ${g.colunas}">${g.rotulo}</div>`).join('');
+  }
+
+  document.querySelectorAll('.viagem').forEach(desenharViagem);
+
+  Reveal.initialize({
+    hash: true,
+    controls: false,
+    slideNumber: false,
+    width: 1280,
+    height: 720,
+    margin: 0.04,
+    transition: 'slide',
+    plugins: [RevealHighlight, RevealNotes],
+  }).then(atualizarNavegacao);
+
+  // Barra de navegação própria: ‹ atual / total ›
+  const navegacao = document.querySelector('.navegacao');
+  const botaoAnterior = navegacao.querySelector('[data-acao="anterior"]');
+  const botaoProximo = navegacao.querySelector('[data-acao="proximo"]');
+  const contador = navegacao.querySelector('.contador');
+
+  botaoAnterior.addEventListener('click', () => Reveal.prev());
+  botaoProximo.addEventListener('click', () => Reveal.next());
+
+  function atualizarNavegacao() {
+    const rotas = Reveal.availableRoutes();
+    const fragmentos = Reveal.availableFragments();
+    contador.innerHTML = `<b>${Reveal.getIndices().h + 1}</b> / ${Reveal.getTotalSlides()}`;
+    botaoAnterior.disabled = !rotas.left && !fragmentos.prev;
+    botaoProximo.disabled = !rotas.right && !fragmentos.next;
+  }
+
+  ['slidechanged', 'fragmentshown', 'fragmenthidden'].forEach((evento) => Reveal.on(evento, atualizarNavegacao));
+</script>
+</body>
+</html>
