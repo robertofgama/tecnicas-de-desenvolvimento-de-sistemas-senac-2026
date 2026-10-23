@@ -3,7 +3,7 @@
 //
 // Cada exercício está entre chaves { } pra que as variáveis de um
 // não briguem com as do outro (const não pode ser declarada duas vezes
-// no mesmo lugar). Escopo é assunto de outra aula; por enquanto, só saiba
+// no mesmo lugar). Isso se chama escopo; aqui basta saber
 // que o que nasce dentro das chaves fica dentro das chaves.
 
 // ---------------------------------------------------------------

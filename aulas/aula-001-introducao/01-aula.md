@@ -66,8 +66,8 @@ A frase-resumo da aula é: **"A tela mostra, o JS reage, o React organiza, a red
 **Slide 2, quem está aqui.** Faça uma rodada de no máximo 1 min por pessoa: nome, área na Vence Tudo e uma expectativa. **Anote as expectativas no quadro**, porque elas voltam no fechamento.
 
 **Slide 3, sondagem de 0 a 3.** Cada pessoa mostra o nível com os dedos. Anote a distribuição; ela serve para:
-- ajustar o ritmo das próximas aulas;
-- montar grupos mistos na dinâmica de hoje e duplas nas aulas práticas.
+- ajustar o ritmo da exposição;
+- montar grupos mistos na dinâmica "Em que camada?".
 
 **Slide 4, combinados.**
 - 50 h em 17 encontros. A frequência mínima de 75% equivale a 37,5 h, então dá para faltar em no máximo cerca de 4 encontros.
@@ -164,7 +164,7 @@ Reserve cerca de 4 min por slide. O slide 10 apresenta a cena e o mapa completo,
 
 **Slide 41, recapitulação.** Volte às **expectativas anotadas na abertura** e pergunte em que parada da viagem cada uma se encaixa.
 
-**Slide 42, próximo encontro.** Na sexta, 09/10/2026, começa a 1ª fase: Desenvolvimento Front-end Moderno. Proponha a reflexão, que não vale nota: *"escolha um sistema que você usa no trabalho e tente identificar as paradas da viagem"*. Ela serve para abrir a próxima aula com exemplos da própria empresa.
+**Slide 42, para pensar.** Proponha a reflexão, que não vale nota: *"escolha um sistema que você usa no trabalho e tente identificar as paradas da viagem"*. Se der tempo, ouça um ou dois exemplos: eles mostram a viagem no dia a dia da própria empresa.
 
 **Slide 43, dúvidas.**
 
