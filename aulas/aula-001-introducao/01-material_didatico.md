@@ -1,9 +1,9 @@
-# Aula 1 — A viagem de um pedido
+# A viagem de um pedido
 
 - **Data:** 05/10/2026 (segunda-feira)
 - **Duração:** 3 h (180 min, com 15 min de intervalo)
 - **Formato:** exposição dialogada com dinâmica em grupo; os alunos não usam o computador
-- **Slides:** [`slides.html`](slides.html), com 43 slides
+- **Slides:** [`04_slides.html`](04_slides.html), com 43 slides
 
 ## Objetivos de aprendizagem
 
@@ -17,7 +17,7 @@ Ao final da aula, o aluno deve ser capaz de:
 
 ## Materiais e checklist pré-aula
 
-- [ ] Computador do professor ligado ao projetor, com o `slides.html` aberto no Chrome, Firefox ou Edge
+- [ ] Computador do professor ligado ao projetor, com o `04_slides.html` aberto no Chrome, Firefox ou Edge
 - [ ] Internet funcionando: o reveal.js e as fontes vêm de CDN
 - [ ] Testar as teclas `F` (tela cheia), `S` (janela de notas do apresentador), `Esc` (visão geral) e as setas, além da barra `‹ n / 43 ›` no canto superior direito
 - [ ] Quadro e caneta para anotar a sondagem (slide 3) e as expectativas da turma (slide 2)
@@ -63,7 +63,7 @@ A frase-resumo da aula é: **"A tela mostra, o JS reage, o React organiza, a red
 
 **Slide 1, capa.** Apresente-se. Antecipe que hoje não se programa: "vamos olhar o mapa inteiro antes de começar a viagem".
 
-**Slide 2, quem está aqui.** Faça uma rodada de no máximo 1 min por pessoa: nome, área na Vence Tudo e uma expectativa. **Anote as expectativas no quadro**, porque elas voltam no fechamento.
+**Slide 2, quem está aqui.** Faça uma rodada de no máximo 1 min por pessoa: nome, área em que trabalha e uma expectativa. **Anote as expectativas no quadro**, porque elas voltam no fechamento.
 
 **Slide 3, sondagem de 0 a 3.** Cada pessoa mostra o nível com os dedos. Anote a distribuição; ela serve para:
 - ajustar o ritmo da exposição;
